@@ -23,12 +23,12 @@ class YOLO(object):
         self.model_path = 'model_data/yolo.h5'
         self.anchors_path = 'model_data/yolo_anchors.txt'
         self.classes_path = 'model_data/coco_classes.txt'
-        self.score = 0.5
+        self.score = 0.68
         self.iou = 0.5
         self.class_names = self._get_class()
         self.anchors = self._get_anchors()
         self.sess = K.get_session()
-        self.model_image_size = (416, 416) # fixed size or (None, None)
+        self.model_image_size = (640, 448) # fixed size or (None, None)
         self.is_fixed_size = self.model_image_size != (None, None)
         self.boxes, self.scores, self.classes = self.generate()
 
@@ -51,7 +51,7 @@ class YOLO(object):
         model_path = os.path.expanduser(self.model_path)
         assert model_path.endswith('.h5'), 'Keras model must be a .h5 file.'
 
-        self.yolo_model = load_model(model_path, compile=False)
+        self.yolo_model = load_model(model_path)
         print('{} model, anchors, and classes loaded.'.format(model_path))
 
         # Generate colors for drawing bounding boxes.
@@ -95,12 +95,15 @@ class YOLO(object):
                 K.learning_phase(): 0
             })
         return_boxs = []
+        reuturn_objects =[]
         for i, c in reversed(list(enumerate(out_classes))):
             predicted_class = self.class_names[c]
-            if predicted_class != 'person' :
-                continue
+            print("Predicted class: {} score: {:.2f} ".format(predicted_class, out_scores[i] ))
+            #if predicted_class not in  ['person','truck','car'] :
+            #    continue
+            
             box = out_boxes[i]
-           # score = out_scores[i]  
+            score = out_scores[i]  
             x = int(box[1])  
             y = int(box[0])  
             w = int(box[3]-box[1])
@@ -112,8 +115,9 @@ class YOLO(object):
                 h = h + y
                 y = 0 
             return_boxs.append([x,y,w,h])
+            reuturn_objects.append(predicted_class)
 
-        return return_boxs
+        return return_boxs,reuturn_objects
 
     def close_session(self):
         self.sess.close()

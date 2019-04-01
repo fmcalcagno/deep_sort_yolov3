@@ -17,4 +17,5 @@ pottedplant
 sheep
 sofa
 train
+truck
 tvmonitor

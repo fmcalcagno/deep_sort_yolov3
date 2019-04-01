@@ -95,6 +95,19 @@ class Track:
         ret[:2] -= ret[2:] / 2
         return ret
 
+    def to_center(self):
+        """Get current position in center box format `(mid x, mid y).
+
+        Returns
+        -------
+        ndarray
+            The Center of the object
+
+        """
+        med = self.to_tlbr()
+        medout= ((med[2]+med[0])/2,(med[3]+med[1])/2)
+        return medout
+
     def to_tlbr(self):
         """Get current position in bounding box format `(min x, miny, max x,
         max y)`.
